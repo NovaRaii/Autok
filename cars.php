@@ -32,7 +32,7 @@ function getCsvData($FileName){
     }
 
  
-if (empty($csvData)) {
+/*if (empty($csvData)) {
     echo "Nincs Adat!";
     return false;
 }
@@ -43,9 +43,12 @@ $isHeader = true;
         if (!is_array($line)) {
             continue;
         }
+        if($idx == 0) {
+            continue;
+        }
         if ($maker != $line[$idxMaker]){
             $maker = $line[$idxMaker];
-            $makers[] = $maker;
+            //$makers[] = $maker;
         }
         if ($model != $line[$idxModel]){
             $model = $line[$idxModel];
@@ -54,3 +57,30 @@ $isHeader = true;
     }
     //print_r($result);
     print_r($makers);
+*/
+function getMakers($csvData){
+    if (empty($csvData)) {
+        echo "Nincs Adat!";
+        return false;
+    }
+    $maker = "";
+    $header = $csvData[0];
+    $idxMaker = array_search ('make', $header);
+    foreach ($csvData as $idx => $line) {
+        if (!is_array($line)) {
+            continue;
+        }
+        if($idx == 0) {
+            continue;
+        }
+        if ($maker != $line[$idxMaker]){
+            $maker = $line[$idxMaker];
+            $makers[] = $maker;
+        }
+    }
+    return $makers;
+}
+
+$makers = getMakers($csvData);
+print_r($makers);
+    
