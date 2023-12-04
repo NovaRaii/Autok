@@ -58,6 +58,7 @@ $isHeader = true;
     //print_r($result);
     print_r($makers);
 */
+
 function getMakers($csvData){
     if (empty($csvData)) {
         echo "Nincs Adat!";
@@ -80,7 +81,25 @@ function getMakers($csvData){
     }
     return $makers;
 }
+$mysqli = new mysqli("localhost","root",null,"cars");
 
+// Check connection
+if ($mysqli -> connect_errno) {
+  echo "Failed to connect to MySQL: " . $mysqli -> connect_error;
+  exit();
+}
+echo "connected";
 $makers = getMakers($csvData);
-print_r($makers);
-    
+$mysqli->query("TRUNCATE TABLE makers;");
+foreach ($makers as $maker) {
+    $mysqli->query("INSERT INTO makers (name) VALUES ('$maker')");
+    echo "$maker\n";
+}
+/*
+$result = $mysqli->query("SELECT COUNT(id) as cnt FROM makers;");
+$row = $result->fetch_assoc();
+
+echo "{$row['cnt']} sor van;\n";
+*/
+$makers 
+$mysqli->close();
