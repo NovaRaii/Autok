@@ -1,6 +1,7 @@
 <?php
 
 //require_once('csv-tools.php');
+require_once('db-tools.php');
 ini_set('memory_limit','560M');
 $FileName  = "car-db.csv";
 $csvData = getCsvData($FileName);
@@ -10,7 +11,7 @@ $makers = [];
 $header = $csvData[0];
 $idxMaker = array_search ('make', $header);
 $idxModel = array_search ('model', $header);
-
+require_once('MakersDbTools.php');
 
 function getCsvData($FileName){
  
@@ -81,26 +82,37 @@ function getMakers($csvData){
     }
     return $makers;
 }
-$mysqli = new mysqli("localhost","root",null,"cars");
+/*$mysqli = new mysqli("localhost","root",null,"cars");
 
 // Check connection
 if ($mysqli -> connect_errno) {
   echo "Failed to connect to MySQL: " . $mysqli -> connect_error;
   exit();
-}
-echo "connected";
+}*/
+
+$MakersDbTools = new MakersDbTools();
+
 $makers = getMakers($csvData);
-$mysqli->query("TRUNCATE TABLE makers;");
+
+
+$errors = [];
 foreach ($makers as $maker) {
-    $mysqli->query("INSERT INTO makers (name) VALUES ('$maker')");
+    //$mysqli->query("INSERT INTO makers (name) VALUES ('$maker')");
+    $result = $MakersDbTools->createMaker($maker);
+    if (!$result) {
+        $errors[] = $maker;
+    }
     echo "$maker\n";
 }
 
-$result = $mysqli->query("SELECT COUNT(id) as cnt FROM makers;");
-$row = $result->fetch_assoc();
+//$result = $mysqli->query("SELECT COUNT(id) as cnt FROM makers;");
+//$row = $result->fetch_assoc();
 
-echo "{$row['cnt']} sor van;\n";
-
+$allMakers = $MakersDbTools->getAllMakers();
+$cnt = count($allMakers);
+echo "$cnt sor van;\n";
+echo $cnt . "sor van\n";
+echo sprintf('%d sor van', $cnt);
 $makers 
 
 ?>

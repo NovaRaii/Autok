@@ -38,12 +38,7 @@ function updateMaker($mysqli, $data) {
     return $maker;
 }
 
-function getMaker($mysqli, $id) {
-    $result = $mysqli->query("SELECT * FROM makers WHERE  ");
-    $maker = $result->fetch_assoc();
 
-    return $maker;
-}
 
 function getMakerByName($mysqli, $data) {
     $result = $mysqli->query("SELECT * FROM makers WHERE name=$name ");
@@ -51,9 +46,23 @@ function getMakerByName($mysqli, $data) {
 
     return $maker;
 }
-
+function getMaker($mysqli, $id) {
+    $result = $mysqli->query("SELECT * FROM makers WHERE  ");
+    $maker = $result->fetch_assoc();
+    $result->free_result();
+    return $maker;
+}
 function delMaker($mysqli, $id) {
     $result = $mysqli->query("DELETE makers WHERE id=$id");
     return $result;
+}
+
+function getAllMakers($mysqli) {
+    $result = $mysqli->query("SELECT * FROM makers");
+    $makers = $result->fetch_all(MYSQLI_ASSOC);
+    $result->free_result();
+
+
+    return $makers;
 }
     
