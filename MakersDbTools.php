@@ -18,10 +18,9 @@ class MakersDbTools {
     {
         $this->mysqli->close();
     }
-    function createMaker($mysqli, $makers) {
+    function createMaker($maker) {
     
         $result = $this->$mysqli->query("INSERT INTO makers (name) VALUES ('$maker')");
-        $makerName = $data['name'];
         if (!$result) {
             echo "Hiba történt a $makerName beszúrása közben";
         }
