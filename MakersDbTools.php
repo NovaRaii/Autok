@@ -1,6 +1,4 @@
 <?php
-use Exception;
-
 class MakersDbTools {
     const DBTABLE = 'makers';
 
@@ -20,11 +18,17 @@ class MakersDbTools {
     }
     function createMaker($maker) {
     
-        $result = $this->$mysqli->query("INSERT INTO makers (name) VALUES ('$maker')");
+        $result = $this->mysqli->query("INSERT INTO makers (name) VALUES ('$maker')");
         if (!$result) {
             echo "Hiba történt a $makerName beszúrása közben";
         }
         return $result;
 }
-
+    function getAllMakers() {
+        $result = $this->mysqli->query("SELECT * FROM makers");
+        $maker = $result->fetch_all(MYSQLI_ASSOC);
+        $result->free_result();
+        
+        return $maker;
+}
 }

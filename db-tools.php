@@ -47,7 +47,7 @@ function getMakerByName($mysqli, $data) {
     return $maker;
 }
 function getMaker($mysqli, $id) {
-    $result = $mysqli->query("SELECT * FROM makers WHERE  ");
+    $result = $mysqli->query("SELECT * FROM makers WHERE id=$id");
     $maker = $result->fetch_assoc();
     $result->free_result();
     return $maker;
