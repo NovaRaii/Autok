@@ -1,83 +1,76 @@
-<!DOCTYPE html>
-<html lang="hu">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Autók</title>
- 
-    <script src="js/jsquery-3.7.1.js" type="text/javascript"></script>
-    <script src="js/cars.js" type="text/javascript"></script>
- 
-    <link rel="stylesheet" href="fontawesome/css/all.css" type="text/css">
-    <link rel="stylesheet" href="css/cars.css" type="text/css">
-</head>
-<body>
-    <nav>
-        <a href="index.php"><i class ="fa fa-home" title="Kezdőlap"></i></a>
-        <a href="makers.php"><button>Gyártók</button></a>
-        <a href="models.php"><button>Modellek</button></a>
-    </nav>
-    <h1>Gyártók</h1>
-   
     <?php
+        session_start();
+        ini_set(option:'memory_limit', value:'-1');
         require_once ('DBMaker.php');
+        require_once('Page.php');
+
+        include 'html-head.php';
+
         $carMaker = new DBMaker();
+        $isEmptyDb = $carMaker->getCount() == 0;
         $abc = $carMaker->getABC();
         //var_dump($abc);
         //return;
-       
-        echo "<div style = 'display: flex'>";
-        foreach($abc as $char)
-        {
-            echo "<form method= 'post' action='makers.php'>
-                    <input type='hidden' name='abc' value='{$char['abc']}'>
-                    <button type='submit'>{$char['abc']}</button>&nbsp
-                    </form>";
-        }
- 
-        echo "</div><br>";
- 
-        if (isset($_POST['abc']))
-      {
-        echo "<table>
-                <thead>
-                    <tr>
-                        <th>#</th><th>Megnevezés</th><th>Művelet</th>
-                    </tr>
-                    <tr>
-                        <th colspan='3'><input type='search' name='needle'><button id='btn-add' title='Új'><i class = 'fa fa-plus'></i></button>
-                    </tr>
-                    <tr id='editor' style='display:none'>
-                        <input type='hidden' id='id' name='id'>
-                        <th colspan='3'>
-                            <input type='search' id='edit-box' name='name'>
-                            <button id='btn-save' title='Ment'>
-                                <i class='fa fa-save'></i>
-                            </button>
-                            <button id='btn-cancel' title='Mégse'>
-                                <i class='fa fa-cancel'></i>
-                            </button>
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>";
-                $ch = $_POST['abc'];
-                $makers = $carMaker->getFirstCh($ch);
-                foreach($makers as $maker)
-                {
-                    $id = $maker['id'];
-                    $name = $maker['name'];
-                    echo "<tr>
-                    <td>$id</td>
-                    <td>$name</td>
-                    <td></td>
-                  </tr>";
+
+        echo "<body>";
+            include 'html-nav.php';
+            echo "<h1>Gyártók</h1>";
+            Page::showExportImportButtons($isEmptyDb);
+            
+            if(isset($_POST['ch'])) {
+                $ch = $_POST['ch'];
+                $_SESSION['ch'] = $ch;
+            }
+
+            if (isset($_POST['btn-del'])) {
+                $id = $_POST['btn-del'];
+                $carMaker->delete($id);
+            
+            }
+            
+            if (!$isEmptyDb) {
+                Page::showSearchBar();
+                $abc = $carMaker->getAbc();
+                Page::showAbcButtons($abc);
+            }
+
+            if (isset($_POST['btn-truncate'])) {
+                $carMaker->truncate();
+                $_SESSION['ch'] = '';
+                $makers = [];
+                header(header:"Refresh:0");
+            }
+
+            
+
+            if (isset($_POST['input-file'])) {
+                require_once('csv-tools.php');
+                $fileName = $_POST['input-file'];
+                $csvData = getCsvData($fileName );
+                if (empty($csvData)) {
+                    echo "Nem található adat a csv fájlban.";
+                    return false;
                 }
-                echo "
-                </tbody>
-            </table>";
-        }
-        ?>
-  </body>
-  </html>
+                $makers = getMakers($csvData);
+                $errors = [];
+                foreach ($makers as $maker) {
+                    $result = $carMaker->create(['name' => $maker]);
+                    if (!$result) {
+                        $errors[] = $maker;
+                    }
+                }
+                header(header:"Refresh:0");
+            }
+
+            if (!empty($_SESSION['ch'])) {
+                $ch = $_SESSION['ch'];
+                $makers = $carMaker->getByFirstCh($ch);
+
+                Page::showMakersTable($makers);
+            }
+
+            echo "</body>";
+
+            include 'html-footer.php';
+  ?>
+

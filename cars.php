@@ -1,8 +1,8 @@
 <?php
-
+//require_once('csv-tools.php');
 require_once('db-tools.php');
 require_once('MakersDbTools.php');
-ini_set('memory_limit','560M');
+ini_set('memory_limit','1024M');
 $FileName  = "car-db.csv";
 $csvData = getCsvData($FileName);
 $result = [];
@@ -11,42 +11,39 @@ $makers = [];
 $header = $csvData[0];
 $idxMaker = array_search ('make', $header);
 $idxModel = array_search ('model', $header);
-
-
-function getCsvData($FileName){
+$makersDbTool = new MakersDbTools();
+ 
+function getCsvData($FileName)
+{
  
     if (!file_exists($FileName)) {
         echo "$FileName nem található. ";
         return false;
     }
- 
-    
-        $csvFile = fopen($FileName, 'r');
-        $lines = [];
-        while (! feof($csvFile)) {
-            $line = fgetcsv($csvFile);
-            $lines[] = $line;
-        }
-        fclose($csvFile);
-        return $lines;
-    
+    $csvFile = fopen($FileName, 'r');
+    $lines = [];
+    while (! feof($csvFile)) {
+        $line = fgetcsv($csvFile);
+        $lines[] = $line;
     }
-
-
-
-function getMakers($csvData){
+    fclose($csvFile);
+    return $lines;
+}
+ 
+function getMakers($csvData)
+{
     if (empty($csvData)) {
-        echo "Nincs Adat!";
+        echo "Nincs adat.";
         return false;
     }
-    $maker = "";
+    $maker = '';
     $header = $csvData[0];
     $idxMaker = array_search ('make', $header);
     foreach ($csvData as $idx => $line) {
-        if (!is_array($line)) {
+        if(!is_array($line)){
             continue;
         }
-        if($idx == 0) {
+        if ($idx == 0) {
             continue;
         }
         if ($maker != $line[$idxMaker]){
@@ -56,24 +53,38 @@ function getMakers($csvData){
     }
     return $makers;
 }
-
-$MakersDbTools = new MakersDbTools();
-
-$makers = getMakers($csvData);
-$errors = [];
-foreach ($makers as $maker) {
-    
-    $result = $MakersDbTools->createMaker($maker);
-    if (!$result) {
-        $errors[] = $maker;
+ 
+    $truncateMakers = $makersDbTool->truncateMaker($maker);
+    $errors = [];
+    foreach ($makers as $maker){
+ 
+        $result = $makersDbTool->createMaker($maker);
+        if(!$result){
+            $errors[] = $maker;
+        }
+        echo "$maker\n";
     }
-    echo "$maker\n";
+    if (!empty($errors)){
+        print_r($erorrs);
+    }
+ 
+ 
+if (empty($csvData)) {
+    echo "Nincs adat.";
+    return false;
 }
-
-$allMakers = $MakersDbTools->getAllMakers();
+ 
+ 
+ 
+$csvData = getCsvData($FileName);
+$makers = getMakers($csvData);
+foreach ($makers as $maker){
+    $makersDbTool->createMaker($maker);
+}
+$allMakers = $makersDbTool->getAllMakers();
 $cnt = count($allMakers);
-$rows = count($makers);
-echo "$rows  sor van;\n";
-
-
+//echo $cnt . "sor van;\n";
+$rows =  count($makers);
+print_r($rows . " sor van.")
+ 
 ?>

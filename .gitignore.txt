@@ -1,4 +1,0 @@
-.idea
-*.csv
-*.zip
-*.sql
